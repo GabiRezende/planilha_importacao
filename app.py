@@ -226,7 +226,7 @@ if uploaded_file:
             pdf_gen = relatorioImg(orientation='L')
             arquivo_bytes = pdf_gen.criar_layout(df_sel, fob, frete)
             
-            data_hora = datetime.now((ZoneInfo("America/Sao_Paulo")).strftime("%d_%m_%Y_%Hh%M"))
+            data_hora = datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%d_%m_%Y_%Hh%M")
             nome_arquivo = f"Estimativa_Energy_{data_hora}.pdf"
             
             st.download_button(
