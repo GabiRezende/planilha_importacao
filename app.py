@@ -55,6 +55,7 @@ class DataEngine:
         return mapa_final
 
 class relatorioImg(FPDF):
+    # Cabecalho da plannilha
     def header(self):
         # Logo
         try:
@@ -64,7 +65,7 @@ class relatorioImg(FPDF):
             
         # Titulo
         self.set_y(14) 
-        self.set_font('Helvetica', 'B', 10)
+        self.set_font('Helvetica', 'B', 16)
         titulo = 'ESTIMATIVA DE CUSTOS DE IMPORTAÇÃO E EXPORTAÇÃO'
         titulo_pdf = titulo.encode('latin-1', 'replace').decode('latin-1')
         self.cell(0, 12, titulo_pdf, 0, 1, 'C') 
@@ -74,7 +75,8 @@ class relatorioImg(FPDF):
         self.set_font('Helvetica', '', 8)
         data_texto = f'Gerado em: {datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%d/%m/%Y %H:%M (%Z)")}'
         self.cell(0, 5, data_texto, 0, 1, 'R')
-        
+
+        # Ajustes para separar o cabecalho das colunas e colocar uma linha 
         self.set_draw_color(114, 171, 181) 
         self.set_line_width(0.5)
         self.line(10, 34, 287, 34)
@@ -139,9 +141,9 @@ class relatorioImg(FPDF):
         return bytes(self.output())
 
 # ================== Aqui é a interface ==================
-st.set_page_config(page_title="Energy For The Future", layout="centered")
+st.set_page_config(page_title="Estimativas JS Energy", layout="centered")
 
-st.title("MONTAGEM DA PLANILHA DE ESTIMATIVAS")
+st.title("PLANILHA DE ESTIMATIVAS")
 
 def sync_editor():
     if "editor_v27" in st.session_state:
