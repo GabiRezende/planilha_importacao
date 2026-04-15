@@ -73,7 +73,7 @@ class relatorioImg(FPDF):
         # Registro de data e hora no canto do cabecalho
         self.set_y(27) 
         self.set_font('Helvetica', '', 8)
-        data_texto = f'Gerado em: {datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%d/%m/%Y %H:%M (%Z)")}'
+        data_texto = f'Gerado em: {datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%d/%m/%Y %H:%M (%z)")}'
         self.cell(0, 5, data_texto, 0, 1, 'R')
 
         # Ajustes para separar o cabecalho das colunas e colocar uma linha 
