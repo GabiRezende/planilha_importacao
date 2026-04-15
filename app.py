@@ -5,10 +5,8 @@ import re
 import unicodedata
 from fpdf import FPDF
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
-# ==========================================
-# 1. MOTOR DE EXTRAÇÃO (Lógica de Dados)
-# ==========================================
 class DataEngine:
     @staticmethod
     def normalizar(texto):
@@ -56,43 +54,35 @@ class DataEngine:
                                 break
         return mapa_final
 
-# ==========================================
-# 2. DESIGN DO PDF (Com Logo e Layout Elaine)
-# ==========================================
-class RelatorioElaine(FPDF):
+class relatorioImg(FPDF):
     def header(self):
-        # 1. Logo JS Assessoria (Posição que você já aprovou)
+        # Logo
         try:
             self.image('jslogo.png', 14, 10, 48)
         except:
             pass
             
-        # 2. Título Centralizado com acento
-        self.set_y(14) # Subimos o título 1mm para dar mais equilíbrio
+        # Titulo
+        self.set_y(14) 
         self.set_font('Helvetica', 'B', 16)
         titulo = 'ESTIMATIVA DE CUSTOS DE IMPORTAÇÃO E EXPORTAÇÃO'
-        # Usamos o encode para o Ç e o Ã aparecerem bonitões
         titulo_pdf = titulo.encode('latin-1', 'replace').decode('latin-1')
         self.cell(0, 12, titulo_pdf, 0, 1, 'C') 
         
-        # 3. Data e Hora (Ajuste de "respiro")
-        # Colocamos em y=27 para ela ficar flutuando acima da linha, sem encostar
+        # Registro de data e hora no canto do cabecalho
         self.set_y(27) 
         self.set_font('Helvetica', '', 8)
-        data_texto = f'Gerado em: {datetime.now().strftime("%d/%m/%Y %H:%M")}'
+        data_texto = f'Gerado em: {datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%d/%m/%Y %H:%M (%Z)")}'
         self.cell(0, 5, data_texto, 0, 1, 'R')
         
-        # 4. Linha Verde-Água (Descida para o visual não ficar "troncho")
         self.set_draw_color(114, 171, 181) 
         self.set_line_width(0.5)
-        # Movemos a linha para y=34. Assim temos um espaço limpo entre texto e linha.
         self.line(10, 34, 287, 34)
-        
-        self.ln(20) # Espaço extra para as tabelas começarem sem aperto
+        self.ln(20) 
 
     def criar_layout(self, df_selecionado, fob, frete):
         self.add_page()
-        cor_header = (114, 171, 181) # Verde-água
+        cor_header = (114, 171, 181) # Aqui é o cabecalho de cada coluna
         cor_zebra = (245, 245, 245)
         
         t_imp = df_selecionado[df_selecionado["Grupo"] == "Impostos"]["Valor (R$)"].sum()
@@ -148,12 +138,10 @@ class RelatorioElaine(FPDF):
         self.cell(25, 10, f"R$ {(t_imp+t_tax+t_des):,.2f}", 0, 1, 'R', 1)
         return bytes(self.output())
 
-# ==========================================
-# 3. INTERFACE (Site Centralizado e Estável)
-# ==========================================
+# ================== Aqui é a interface ==================
 st.set_page_config(page_title="Energy For The Future", layout="centered")
 
-st.title("ENERGY FOR THE FUTURE")
+st.title("MONTAGEM DA PLANILHA DE ESTIMATIVAS")
 
 def sync_editor():
     if "editor_v27" in st.session_state:
@@ -188,7 +176,7 @@ if uploaded_file:
             lista_inicial.append({"Incluir?": True, "Item": nome, "Valor (R$)": val, "Grupo": g})
         st.session_state.df_final = pd.DataFrame(lista_inicial)
 
-    st.subheader("📝 Edição da Estimativa")
+    st.subheader("Edição da Estimativa")
     df_atualizado = st.data_editor(
         st.session_state.df_final,
         column_config={
@@ -205,12 +193,12 @@ if uploaded_file:
     col_info, col_busca = st.columns(2)
 
     with col_info:
-        st.subheader("⚙️ Dados Gerais")
+        st.subheader("Dados Gerais")
         fob = st.number_input("Valor FOB (BRL)", value=st.session_state.pdf_map.get("FOB", 0.0), format="%.2f")
         frete = st.number_input("Valor Frete (BRL)", value=st.session_state.pdf_map.get("FRETE", 0.0), format="%.2f")
 
     with col_busca:
-        st.subheader("🔍 Adicionar do PDF")
+        st.subheader("Adicionar do PDF")
         busca = st.text_input("Localizar item...")
         if busca:
             matches = {k: v for k, v in st.session_state.pdf_map.items() if DataEngine.normalizar(busca) in DataEngine.normalizar(k)}
@@ -229,21 +217,21 @@ if uploaded_file:
     
     st.markdown(f"<h3 style='text-align: center;'>Total Selecionado: R$ {total:,.2f}</h3>", unsafe_allow_html=True)
     
-    if st.button("🚀 Gerar PDF Selecionado", use_container_width=True):
+    if st.button("Gerar PDF Selecionado", use_container_width=True):
         if df_sel.empty:
             st.warning("Selecione ao menos um item!")
         else:
-            pdf_gen = RelatorioElaine(orientation='L')
+            pdf_gen = relatorioImg(orientation='L')
             arquivo_bytes = pdf_gen.criar_layout(df_sel, fob, frete)
             
-            data_hora = datetime.now().strftime("%d_%m_%Y_%Hh%M")
+            data_hora = datetime.now((ZoneInfo("America/Sao_Paulo")).strftime("%d_%m_%Y_%Hh%M")
             nome_arquivo = f"Estimativa_Energy_{data_hora}.pdf"
             
             st.download_button(
-                label=f"💾 Baixar PDF ({nome_arquivo})", 
+                label=f"Baixar PDF ({nome_arquivo})", 
                 data=arquivo_bytes, 
                 file_name=nome_arquivo, 
                 mime="application/pdf", 
                 use_container_width=True
             )
-            st.balloons()
+           
