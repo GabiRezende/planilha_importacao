@@ -64,7 +64,7 @@ class relatorioImg(FPDF):
             
         # Titulo
         self.set_y(14) 
-        self.set_font('Helvetica', 'B', 12)
+        self.set_font('Helvetica', 'B', 10)
         titulo = 'ESTIMATIVA DE CUSTOS DE IMPORTAÇÃO E EXPORTAÇÃO'
         titulo_pdf = titulo.encode('latin-1', 'replace').decode('latin-1')
         self.cell(0, 12, titulo_pdf, 0, 1, 'C') 
