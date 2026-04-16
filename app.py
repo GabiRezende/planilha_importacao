@@ -7,6 +7,8 @@ from fpdf import FPDF
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+def moeda_br(valor):
+    return f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 class DataEngine:
     @staticmethod
@@ -132,7 +134,7 @@ class RelatorioImg(FPDF):
                 self.set_fill_color(*cor_zebra)
                 nome = DataEngine.normalizar(row["Item"])[:28]
                 self.cell(larg_col * 0.65, 7, f" {nome}", 0, 0, "L", fill)
-                self.cell(larg_col * 0.35, 7, f'R$ {row["Valor (R$)"]:,.2f} ', 0, 1, "R", fill)
+                self.cell(larg_col * 0.35, 7, f'{moeda_br(row["Valor (R$)"])} ', 0, 1, "R", fill)
 
         x_box, y_box = 230, 45
         self.set_xy(x_box, y_box)
@@ -140,13 +142,13 @@ class RelatorioImg(FPDF):
         self.set_font("Helvetica", "B", 8)
         self.cell(20, 6, " FOB", 0, 0, "L", 1)
         self.set_font("Helvetica", "", 8)
-        self.cell(35, 6, f"R$ {fob:,.2f}", 0, 1, "R", 1)
+        self.cell(35, 6, moeda_br(fob), 0, 1, "R", 1)
 
         self.set_x(x_box)
         self.set_font("Helvetica", "B", 8)
         self.cell(20, 6, " FRETE", 0, 0, "L", 1)
         self.set_font("Helvetica", "", 8)
-        self.cell(35, 6, f"R$ {frete:,.2f}", 0, 1, "R", 1)
+        self.cell(35, 6, moeda_br(frete), 0, 1, "R", 1)
 
         self.ln(8)
 
@@ -160,7 +162,7 @@ class RelatorioImg(FPDF):
             self.set_font("Helvetica", "B", 7)
             self.cell(30, 6, f" {label}", 0, 0, "L", 1)
             self.set_font("Helvetica", "", 8)
-            self.cell(25, 6, f"R$ {val:,.2f}", 0, 1, "R", 1)
+            self.cell(25, 6, moeda_br(val), 0, 1, "R", 1)
             self.ln(2)
 
         self.ln(4)
@@ -169,7 +171,7 @@ class RelatorioImg(FPDF):
         self.set_text_color(255, 255, 255)
         self.set_font("Helvetica", "B", 10)
         self.cell(30, 10, " TOTAL GERAL:", 0, 0, "L", 1)
-        self.cell(25, 10, f"R$ {(t_imp + t_tax + t_des):,.2f}", 0, 1, "R", 1)
+        self.cell(25, 10, moeda_br(t_imp + t_tax + t_des), 0, 1, "R", 1)
 
         return bytes(self.output())
 
